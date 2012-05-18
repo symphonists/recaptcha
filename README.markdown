@@ -1,6 +1,6 @@
 # reCAPTCHA
 
-# Installation
+## Installation
 1. Get reCAPTCHA API keys from http://recaptcha.net/whyrecaptcha.html
 2. Upload the 'recaptcha' folder in this archive to your Symphony 'extensions' folder.
 3. Enable it at System > Extensions.
