@@ -10,7 +10,6 @@
 7. Add "reCAPTCHA: Public Key" Data Source to your page.
 8. Add the following line to your form: 
 
-    
-    <script type="text/javascript" src="http://api.recaptcha.net/challenge?k={/data/recaptcha}"></script>
+    `<script type="text/javascript" src="http://api.recaptcha.net/challenge?k={/data/recaptcha}"></script>`
 
 See http://recaptcha.net/apidocs/captcha/client.html for information about customisation of the reCAPTCHA box.
