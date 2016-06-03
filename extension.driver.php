@@ -2,17 +2,6 @@
 
 	Class extension_recaptcha extends Extension{
 
-		public function about(){
-			return array('name' => 'reCAPTCHA',
-						 'version' => '1.0',
-						 'release-date' => '2008-05-07',
-						 'author' => array(	'name' => 'Symphony Team',
-											'website' => 'http://symphony21.com',
-											'email' => 'team@symphony21.com'),
-						 'description' => 'This is an event that uses the reCAPTCHA service to help prevent spam.'
-				 		);
-		}
-		
 		public function getSubscribedDelegates(){
 			return array(
 						array(
@@ -64,11 +53,11 @@
 
 			$div = new XMLElement('div', NULL, array('class' => 'group'));
 			$label = Widget::Label('Public Key');
-			$label->appendChild(Widget::Input('settings[recaptcha][public-key]', General::Sanitize($this->_Parent->Configuration->get('public-key', 'recaptcha'))));		
+			$label->appendChild(Widget::Input('settings[recaptcha][public-key]', General::Sanitize(Symphony::Configuration()->get('public-key', 'recaptcha'))));		
 			$div->appendChild($label);
 
 			$label = Widget::Label('Private Key');
-			$label->appendChild(Widget::Input('settings[recaptcha][private-key]', General::Sanitize($this->_Parent->Configuration->get('private-key', 'recaptcha'))));		
+			$label->appendChild(Widget::Input('settings[recaptcha][private-key]', General::Sanitize(Symphony::Configuration()->get('private-key', 'recaptcha'))));		
 			$div->appendChild($label);
 			
 			$group->appendChild($div);
@@ -99,30 +88,33 @@
 			if(!in_array('recaptcha', $context['event']->eParamFILTERS)) return;
 			
 			
-			include_once(EXTENSIONS . '/recaptcha/lib/recaptchalib.php');
-			$resp = recaptcha_check_answer($this->getPrivateKey(),
-			                                $_SERVER['REMOTE_ADDR'],
-			                                $_POST['recaptcha_challenge_field'],
-			                                $_POST['recaptcha_response_field']);
+			include_once(EXTENSIONS . '/recaptcha/vendor/autoload.php');
 
-			$context['messages'][] = array('recaptcha', $resp->is_valid, (!$resp->is_valid ? 'Challenge words entered were invalid.' : NULL));
+			$recaptcha = new \ReCaptcha\ReCaptcha(Symphony::Configuration()->get('private-key', 'recaptcha'));
+			$resp = $recaptcha->verify($_POST['g-captcha-response'], $_SERVER['REMOTE_ADDR']);
+
+			// $resp = recaptcha_check_answer($this->getPrivateKey(),
+			//                                 $_SERVER['REMOTE_ADDR'],
+			//                                 $_POST['recaptcha_challenge_field'],
+			//                                 $_POST['recaptcha_response_field']);
+
+			$success = $resp->isSuccess();
+
+			$context['messages'][] = array('recaptcha', $success, (!$success ? 'Challenge words entered were invalid.' : NULL));
 
 		}
 		
 		public function uninstall(){
-			//ConfigurationAccessor::remove('recaptcha');	
-			$this->_Parent->Configuration->remove('recaptcha');
+			Symphony::Configuration()->remove('recaptcha');
 			$this->_Parent->saveConfig();
 		}
 
 		public function getPublicKey(){
-			//return ConfigurationAccessor::get('public-key', 'recaptcha');
-			return $this->_Parent->Configuration->get('public-key', 'recaptcha');
+			return Symphony::Configuration()->get('public-key', 'recaptcha');
 		}	
 		
 		public function getPrivateKey(){
-			//return ConfigurationAccessor::get('private-key', 'recaptcha');
-			return $this->_Parent->Configuration->get('private-key', 'recaptcha');
+			return Symphony::Configuration()->get('private-key', 'recaptcha');
 		}			
 		
 	}
